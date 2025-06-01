@@ -192,3 +192,6 @@ img.profile-pic {
     color: #222 !important;
 }
 
+body {
+    zoom: 0.8;
+}
