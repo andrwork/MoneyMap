@@ -1,4 +1,4 @@
-name: Build and deploy ASP app to Azure Web App - money-map-expense-tracker
+name: Build and deploy ASP.NET Core app to Azure Web App
 
 on:
   push:
@@ -9,25 +9,30 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v3
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore "MoneyMap/Expense Tracker.csproj"
+        run: dotnet restore "ExpenseTracker.sln"
 
-      - name: Publish app
-        run: dotnet publish "MoneyMap/Expense Tracker.csproj" --configuration Release --output ./published
+      - name: Build
+        run: dotnet build "ExpenseTracker.sln" --configuration Release --no-restore
+
+      - name: Publish
+        run: dotnet publish "ExpenseTracker.sln" --configuration Release --output ./publish --no-build
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ASP-app
-          path: ./published
+          name: published-app
+          path: ./publish
 
   deploy:
     runs-on: windows-latest
@@ -40,14 +45,14 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
-          name: ASP-app
+          name: published-app
 
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_1AA75FA4FC044E5C9C8D5E432CE19993 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_5199EAEA4AD6491DB10A4F8F7DB119C9 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_81DB7CA3E1C64596BCA23F298C8AF3E8 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_XXXXXXXXXXXX }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_XXXXXXXXXXXX }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_XXXXXXXXXXXX }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
